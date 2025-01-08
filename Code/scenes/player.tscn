@@ -1,0 +1,73 @@
+[gd_scene load_steps=11 format=3 uid="uid://87utyqav3dpw"]
+
+[ext_resource type="Script" path="res://scripts/player.gd" id="1_o2ipj"]
+[ext_resource type="PackedScene" uid="uid://d4i67vo2dr5ri" path="res://player_2.tscn" id="2_6v5km"]
+[ext_resource type="Script" path="res://scripts/state_machine.gd" id="2_ah7el"]
+[ext_resource type="Script" path="res://scenes/IdlePlayerState.gd" id="3_5jvhr"]
+[ext_resource type="Script" path="res://scenes/RunningPlayerState.gd" id="4_514uh"]
+[ext_resource type="Script" path="res://scenes/DashingPlayerState.gd" id="5_aqftc"]
+[ext_resource type="Script" path="res://scenes/WallRunningPlayerState.gd" id="6_0kntx"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_m1wqk"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yktji"]
+albedo_color = Color(0, 1, 0, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_qdlou"]
+material = SubResource("StandardMaterial3D_yktji")
+radius = 0.01
+height = 0.02
+
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "RAYCAST")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+collision_layer = 2
+script = ExtResource("1_o2ipj")
+MOUSE_SENSITIVITY = 1.25
+CAMERA_CONTROLLER = NodePath("CameraController/Camera3D")
+RAYCAST = NodePath("CameraController/Camera3D/RayCast3D")
+
+[node name="player2" parent="." instance=ExtResource("2_6v5km")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_m1wqk")
+
+[node name="CameraController" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CameraController"]
+cull_mask = 1048573
+
+[node name="RayCast3D" type="RayCast3D" parent="CameraController/Camera3D"]
+target_position = Vector3(0, 0, -100)
+debug_shape_custom_color = Color(0, 1, 0, 1)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CameraController/Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
+mesh = SubResource("SphereMesh_qdlou")
+
+[node name="LeftRayCast" type="RayCast3D" parent="CameraController/Camera3D"]
+unique_name_in_owner = true
+target_position = Vector3(-1.5, 0, 0)
+
+[node name="RightRayCast" type="RayCast3D" parent="CameraController/Camera3D"]
+unique_name_in_owner = true
+target_position = Vector3(1.5, 0, 0)
+
+[node name="PlayerStateMachine" type="Node" parent="." node_paths=PackedStringArray("CURRENT_STATE")]
+script = ExtResource("2_ah7el")
+CURRENT_STATE = NodePath("IdlePlayerState")
+
+[node name="IdlePlayerState" type="Node" parent="PlayerStateMachine"]
+script = ExtResource("3_5jvhr")
+
+[node name="RunningPlayerState" type="Node" parent="PlayerStateMachine" node_paths=PackedStringArray("DASHINGPLAYERSTATE")]
+script = ExtResource("4_514uh")
+DASHINGPLAYERSTATE = NodePath("../DashingPlayerState")
+
+[node name="DashingPlayerState" type="Node" parent="PlayerStateMachine"]
+script = ExtResource("5_aqftc")
+
+[node name="WallRunningPlayerState" type="Node" parent="PlayerStateMachine" node_paths=PackedStringArray("DASHINGPLAYERSTATE")]
+script = ExtResource("6_0kntx")
+DASHINGPLAYERSTATE = NodePath("../DashingPlayerState")
