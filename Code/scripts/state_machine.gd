@@ -22,7 +22,8 @@ func _process(delta):
 	#Global.debug.add_property("Current State", CURRENT_STATE.name, 3)
 
 func _physics_process(delta):
-	CURRENT_STATE.physics_update(delta)
+	if is_multiplayer_authority():
+		CURRENT_STATE.physics_update(delta)
 
 func on_child_transition(new_state_name: StringName) -> void:
 	var new_state = states.get(new_state_name)

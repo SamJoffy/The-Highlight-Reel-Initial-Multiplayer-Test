@@ -27,15 +27,19 @@ var _current_rotation : float
 var _tilt_input: float = 0.0
 var jump_ready: bool = true
 
+func _enter_tree():
+	set_multiplayer_authority(name.to_int())
+
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	CAMERA_CONTROLLER.current = is_multiplayer_authority()
 
 func _physics_process(delta):
 	_update_camera(delta)
 
 func _input(event):
-	
 	if event.is_action_pressed("exit"):
+		$"../".exit_game(name.to_int())
 		get_tree().quit()
 	elif event.is_action_pressed("shoot"):
 		if RAYCAST.is_colliding():
