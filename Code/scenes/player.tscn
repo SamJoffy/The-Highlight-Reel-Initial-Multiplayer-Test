@@ -26,13 +26,14 @@ properties/1/path = NodePath(".:rotation")
 properties/1/spawn = true
 properties/1/replication_mode = 1
 
-[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "RAYCAST")]
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "RAYCAST", "PLAYERMODEL")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 collision_layer = 2
 script = ExtResource("1_o2ipj")
 MOUSE_SENSITIVITY = 1.25
 CAMERA_CONTROLLER = NodePath("CameraController/Camera3D")
 RAYCAST = NodePath("CameraController/Camera3D/RayCast3D")
+PLAYERMODEL = NodePath("player2")
 
 [node name="player2" parent="." instance=ExtResource("2_6v5km")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, -1, 0)
@@ -44,7 +45,6 @@ shape = SubResource("CapsuleShape3D_m1wqk")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
 
 [node name="Camera3D" type="Camera3D" parent="CameraController"]
-cull_mask = 1048573
 
 [node name="RayCast3D" type="RayCast3D" parent="CameraController/Camera3D"]
 target_position = Vector3(0, 0, -100)
