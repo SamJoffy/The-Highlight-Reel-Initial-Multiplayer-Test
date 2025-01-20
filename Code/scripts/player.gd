@@ -29,6 +29,8 @@ var _tilt_input: float = 0.0
 var jump_ready: bool = true
 var isFocused: bool = true
 
+var health: int = 3
+
 func _enter_tree():
 	set_multiplayer_authority(name.to_int())
 
@@ -36,8 +38,9 @@ func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	CAMERA_CONTROLLER.current = is_multiplayer_authority()
 	if is_multiplayer_authority():
-		for _i in PLAYERMODEL.get_children():
-			_i.set_layer_mask_value(3, false)
+		for i in PLAYERMODEL.get_children():
+			i.set_layer_mask_value(3, false)
+		set_collision_layer_value(3, false)
 
 func _physics_process(delta):
 	_update_camera(delta)
@@ -57,6 +60,7 @@ func _input(event):
 		elif event.is_action_pressed("shoot"):
 			if RAYCAST.is_colliding():
 				print("hit")
+				RAYCAST.get_collider().hitPlayer.rpc_id(RAYCAST.get_collider().get_multiplayer_authority())
 			else:
 				print("miss")
 
@@ -122,3 +126,10 @@ func update_input(speed: float, acceleration: float, deceleration: float, isWall
 func update_velocity() -> void:
 	if is_multiplayer_authority():
 		move_and_slide()
+
+@rpc("any_peer")
+func hitPlayer():
+	health -= 1
+	if health <= 0:
+		self.position = Vector3(0, 1, 0)
+		health = 3
