@@ -15,6 +15,7 @@ extends CharacterBody3D
 
 @onready var LEFTRAYCAST: RayCast3D = %LeftRayCast
 @onready var RIGHTRAYCAST: RayCast3D = %RightRayCast
+@onready var crosshair: MeshInstance3D = $CameraController/Camera3D/MeshInstance3D
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
@@ -28,11 +29,12 @@ var _current_rotation : float
 var _tilt_input: float = 0.0
 var jump_ready: bool = true
 var isFocused: bool = true
-
 var health: int = 3
 
+signal healthChanged(healthValue: int)
+
 func _enter_tree():
-	set_multiplayer_authority(name.to_int())
+	set_multiplayer_authority(str(name).to_int())
 
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -41,6 +43,7 @@ func _ready():
 		for i in PLAYERMODEL.get_children():
 			i.set_layer_mask_value(3, false)
 		set_collision_layer_value(3, false)
+		crosshair.visible = true
 
 func _physics_process(delta):
 	_update_camera(delta)
@@ -55,14 +58,10 @@ func _notification(what):
 func _input(event):
 	if is_multiplayer_authority():
 		if event.is_action_pressed("exit"):
-			$"../".exit_game(name.to_int())
 			get_tree().quit()
 		elif event.is_action_pressed("shoot"):
 			if RAYCAST.is_colliding():
-				print("hit")
 				RAYCAST.get_collider().hitPlayer.rpc_id(RAYCAST.get_collider().get_multiplayer_authority())
-			else:
-				print("miss")
 
 func _unhandled_input(event):
 	if is_multiplayer_authority():
@@ -133,3 +132,4 @@ func hitPlayer():
 	if health <= 0:
 		self.position = Vector3(0, 1, 0)
 		health = 3
+	healthChanged.emit(health)
