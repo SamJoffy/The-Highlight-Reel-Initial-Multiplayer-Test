@@ -60,3 +60,9 @@ func upnp_setup():
 		"UPNP Port Mapping Failed! Error %s" % map_result)
 	
 	print("Success! Join Address: %s" % upnp.query_external_address())
+
+func _on_join_local_pressed():
+	enet_peer.create_client("localhost", PORT)
+	multiplayer.multiplayer_peer = enet_peer
+	$CanvasLayer.hide()
+	hud.show()
